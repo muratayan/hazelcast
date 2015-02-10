@@ -16,6 +16,9 @@
 
 package com.hazelcast.transaction.impl;
 
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.instance.MemberImpl;
 import com.hazelcast.logging.AbstractLogger;
 import com.hazelcast.logging.LogEvent;
@@ -24,6 +27,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.test.HazelcastSerialClassRunner;
 import com.hazelcast.test.annotation.QuickTest;
+import com.hazelcast.transaction.TransactionContext;
 import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionOptions;
 import com.hazelcast.transaction.TransactionOptions.TransactionType;
@@ -79,6 +83,24 @@ public class TransactionImplTest {
         } catch (Exception e) {
             assertEquals(expectedException, e);
         }
+    }
+
+    @Test
+    public void transactionalMapCanHaveNegativeSize() throws Exception {
+
+        final HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
+
+        final TransactionContext transactionContext =
+                hazelcastInstance.newTransactionContext(new TransactionOptions().setTransactionType(TransactionOptions.TransactionType.LOCAL));
+
+        transactionContext.beginTransaction();
+
+        final TransactionalMap<String, String> map = transactionContext.getMap("test-map");
+
+        map.put("k", "v");
+        map.remove("k");
+
+        assertEquals(0, map.size()); // failure: expected 0 got -1
     }
 
     @Test(expected = TransactionException.class)

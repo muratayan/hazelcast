@@ -148,6 +148,8 @@ public class BasicMapTest extends HazelcastTestSupport {
         assertArrayEquals(objectArray, (Object[]) map.get("object"));
     }
 
+
+
     @Test
     public void testMapPutAndGet() {
         IMap<String, String> map = getInstance().getMap("testMapPutAndGet");
