@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,10 @@ public class BasicInvocationBuilder extends InvocationBuilder {
     public InternalCompletableFuture invoke() {
         if (target == null) {
             return new BasicPartitionInvocation(nodeEngine, serviceName, op, partitionId, replicaIndex,
-                    tryCount, tryPauseMillis, callTimeout, callback, executorName, resultDeserialized).invoke();
+                    tryCount, tryPauseMillis, callTimeout, callback, resultDeserialized).invoke();
         } else {
             return new BasicTargetInvocation(nodeEngine, serviceName, op, target, tryCount, tryPauseMillis,
-                    callTimeout, callback, executorName, resultDeserialized).invoke();
+                    callTimeout, callback, resultDeserialized).invoke();
         }
     }
 }

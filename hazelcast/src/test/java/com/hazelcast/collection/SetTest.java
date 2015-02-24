@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.SetConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ISet;
+import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.nio.serialization.DefaultSerializationServiceBuilder;
+import com.hazelcast.nio.serialization.SerializationService;
+import com.hazelcast.nio.serialization.SerializationServiceBuilder;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.HazelcastTestSupport;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -42,6 +46,17 @@ import org.junit.runner.RunWith;
 @RunWith(HazelcastParallelClassRunner.class)
 @Category(QuickTest.class)
 public class SetTest extends HazelcastTestSupport {
+
+    @Test
+    public void testCollectionItem_equalsAndHash(){
+        SerializationServiceBuilder serializationServiceBuilder = new DefaultSerializationServiceBuilder();
+        SerializationService build = serializationServiceBuilder.build();
+        Data value = build.toData(randomString());
+        CollectionItem firstItem = new CollectionItem(1, value);
+        CollectionItem secondItem = new CollectionItem(2, value);
+        assertTrue(firstItem.equals(secondItem));
+        assertEquals(firstItem.hashCode(), secondItem.hashCode());
+    }
 
     //    ======================== isEmpty test ============================
 

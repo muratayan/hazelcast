@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public final class PutBackupOperation extends KeyBasedMapOperation implements Ba
     }
 
     public void run() {
+        ttl = recordInfo != null ? recordInfo.getTtl() : ttl;
         final Record record = recordStore.putBackup(dataKey, dataValue, ttl);
         if (recordInfo != null) {
             Records.applyRecordInfo(record, recordInfo);

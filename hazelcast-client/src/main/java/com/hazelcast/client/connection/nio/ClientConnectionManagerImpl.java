@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import com.hazelcast.nio.tcp.SocketChannelWrapper;
 import com.hazelcast.nio.tcp.SocketChannelWrapperFactory;
 import com.hazelcast.util.Clock;
 import com.hazelcast.util.ExceptionUtil;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
@@ -196,22 +195,29 @@ public class ClientConnectionManagerImpl implements ClientConnectionManager {
                 connection = connections.get(target);
                 if (connection == null) {
                     connection = createSocketConnection(address);
-                    authenticator.authenticate(connection);
-                    ClientConnection current = connections.putIfAbsent(connection.getRemoteEndpoint(), connection);
-                    if (current != null) { //There was already a connection close new one
-                        connection.close();
-                        connection = current;
-                    } else {
-                        for (ConnectionListener connectionListener : connectionListeners) {
-                            connectionListener.connectionAdded(connection);
-                        }
-                    }
+                    authenticate(authenticator, connection);
+                    connections.put(connection.getRemoteEndpoint(), connection);
+                    fireConnectionAddedEvent(connection);
                 }
             }
         }
         return connection;
     }
 
+    private void authenticate(Authenticator authenticator, ClientConnection connection) throws IOException {
+        try {
+            authenticator.authenticate(connection);
+        } catch (Throwable throwable) {
+            connection.close(throwable);
+            throw ExceptionUtil.rethrow(throwable, IOException.class);
+        }
+    }
+
+    private void fireConnectionAddedEvent(ClientConnection connection) {
+        for (ConnectionListener connectionListener : connectionListeners) {
+            connectionListener.connectionAdded(connection);
+        }
+    }
 
     private ClientConnection createSocketConnection(final Address address) throws IOException {
         if (!alive) {
@@ -255,14 +261,21 @@ public class ClientConnectionManagerImpl implements ClientConnectionManager {
     }
 
     @Override
-    public void destroyConnection(Connection connection) {
+    public void destroyConnection(final Connection connection) {
         Address endpoint = connection.getEndPoint();
         if (endpoint != null) {
-            connections.remove(endpoint);
-            connection.close();
-            for (ConnectionListener connectionListener : connectionListeners) {
-                connectionListener.connectionRemoved(connection);
+            final ClientConnection conn = connections.remove(endpoint);
+            if (conn == null) {
+                return;
             }
+            conn.close();
+            for (ConnectionListener connectionListener : connectionListeners) {
+                connectionListener.connectionRemoved(conn);
+            }
+
+        } else {
+            ClientInvocationService invocationService = client.getInvocationService();
+            invocationService.cleanConnectionResources((ClientConnection) connection);
         }
     }
 

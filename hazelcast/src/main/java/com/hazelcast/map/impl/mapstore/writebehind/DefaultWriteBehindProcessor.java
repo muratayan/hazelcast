@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+* Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -287,8 +287,9 @@ class DefaultWriteBehindProcessor extends AbstractWriteBehindProcessor<DelayedEn
         if (queue.size() == 0) {
             return Collections.emptyList();
         }
-        final List<DelayedEntry> sortedDelayedEntries = queue.removeAll();
-        return flushInternal(sortedDelayedEntries);
+        final List<DelayedEntry> delayedEntries = new ArrayList<DelayedEntry>(queue.size());
+        queue.drainTo(delayedEntries);
+        return flushInternal(delayedEntries);
     }
 
     @Override
@@ -316,7 +317,7 @@ class DefaultWriteBehindProcessor extends AbstractWriteBehindProcessor<DelayedEn
         logger.severe(logMessage);
     }
 
-    private List<Data> getDataKeys(final List<DelayedEntry> sortedDelayedEntries) {
+    private List<Data> getDataKeys(final Collection<DelayedEntry> sortedDelayedEntries) {
         if (sortedDelayedEntries == null || sortedDelayedEntries.isEmpty()) {
             return Collections.emptyList();
         }

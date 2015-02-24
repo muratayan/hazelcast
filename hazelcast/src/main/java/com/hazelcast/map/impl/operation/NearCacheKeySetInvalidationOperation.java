@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,11 @@ public class NearCacheKeySetInvalidationOperation extends AbstractOperation {
     public NearCacheKeySetInvalidationOperation(String mapName, Set<Data> keys) {
         this.mapKeySet = new MapKeySet(keys);
         this.mapName = mapName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return MapService.SERVICE_NAME;
     }
 
     public void run() {

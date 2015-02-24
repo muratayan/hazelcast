@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public final class WriteHandler extends AbstractSelectionHandler implements Runn
      * if there is more space in the socket output buffer.
      * If the outputBuffer is not dirty, then it will unregister itself from an OP_WRITE since it isn't interested
      * in space in the socket outputBuffer.
-     *
+     * <p/>
      * This call is only made by the IO thread.
      */
     private void unschedule() {
@@ -285,7 +285,11 @@ public final class WriteHandler extends AbstractSelectionHandler implements Runn
 
     @Override
     public void run() {
-        handle();
+        try {
+            handle();
+        } catch (Throwable e) {
+            ioSelector.handleSelectionKeyFailure(e);
+        }
     }
 
     public void shutdown() {

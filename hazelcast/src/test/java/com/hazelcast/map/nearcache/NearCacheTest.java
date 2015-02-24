@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.HazelcastTestSupport;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.hazelcast.test.annotation.QuickTest;
+import com.hazelcast.test.annotation.Repeat;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,6 +54,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+@Repeat(100)
 @RunWith(HazelcastParallelClassRunner.class)
 @Category(QuickTest.class)
 public class NearCacheTest extends HazelcastTestSupport {
@@ -498,6 +500,96 @@ public class NearCacheTest extends HazelcastTestSupport {
         );
     }
 
+    @Test
+    public void testNearCacheInvalidation_WithLFU_whenMaxSizeExceeded() throws Exception {
+        int mapSize = 2000;
+        final int maxSize = 1000;
+        final IMap map = getMapConfiguredWithMaxSizeAndPolicy("LFU", maxSize);
+
+        populateMap(map, mapSize);
+        pullEntriesToNearCache(map, mapSize);
+
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run() throws Exception {
+                NearCacheStats stats = map.getLocalMapStats().getNearCacheStats();
+                long ownedEntryCount = stats.getOwnedEntryCount();
+                assertTrue("owned entry count " + ownedEntryCount, maxSize > ownedEntryCount);
+            }
+        });
+    }
+
+    @Test
+    public void testNearCacheInvalidation_WithLRU_whenMaxSizeExceeded() throws Exception {
+        int mapSize = 2000;
+        final int maxSize = 1000;
+        final IMap map = getMapConfiguredWithMaxSizeAndPolicy("LRU", maxSize);
+
+        populateMap(map, mapSize);
+        pullEntriesToNearCache(map, mapSize);
+
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run() throws Exception {
+                NearCacheStats stats = map.getLocalMapStats().getNearCacheStats();
+                long ownedEntryCount = stats.getOwnedEntryCount();
+                assertTrue("owned entry count " + ownedEntryCount, maxSize > ownedEntryCount);
+            }
+        });
+    }
+
+    //@Repeat(100)
+    @Test
+    public void testNearCacheInvalidation_WithRandom_whenMaxSizeExceeded() throws Exception {
+        int mapSize = 2000;
+        final int maxSize = 1000;
+        final IMap map = getMapConfiguredWithMaxSizeAndPolicy("RANDOM", maxSize);
+
+        populateMap(map, mapSize);
+        pullEntriesToNearCache(map, mapSize);
+
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run() throws Exception {
+                NearCacheStats stats = map.getLocalMapStats().getNearCacheStats();
+                long ownedEntryCount = stats.getOwnedEntryCount();
+                assertTrue("owned entry count " + ownedEntryCount, maxSize > ownedEntryCount);
+            }
+        });
+    }
+
+    @Test
+    public void testNearCacheInvalidation_WitNone_whenMaxSizeExceeded() throws Exception {
+        int mapSize = 2000;
+        final int maxSize = 1000;
+        final IMap map = getMapConfiguredWithMaxSizeAndPolicy("NONE", maxSize);
+
+        populateMap(map, mapSize);
+        pullEntriesToNearCache(map, mapSize);
+
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run() throws Exception {
+                NearCacheStats stats = map.getLocalMapStats().getNearCacheStats();
+                final long ownedEntryCount = stats.getOwnedEntryCount();
+                assertEquals(maxSize, ownedEntryCount);
+            }
+        });
+    }
+
+    private IMap getMapConfiguredWithMaxSizeAndPolicy(String evictionPolicy, int maxSize) {
+        String mapName = randomMapName();
+
+        Config config = new Config();
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setCacheLocalEntries(true);
+        nearCacheConfig.setEvictionPolicy(evictionPolicy);
+        nearCacheConfig.setMaxSize(maxSize);
+        config.getMapConfig(mapName).setNearCacheConfig(nearCacheConfig);
+        HazelcastInstance instance = createHazelcastInstance(config);
+        return instance.getMap(mapName);
+    }
+
     /**
      * Near-cache has its own eviction/expiration mechanism,
      * eviction/expiration on IMap should not force any near-cache eviction/expiration.
@@ -514,8 +606,8 @@ public class NearCacheTest extends HazelcastTestSupport {
         final CountDownLatch latch = new CountDownLatch(mapSize);
 
         addListener(map, latch);
-        populateMapWithExpirableEnties(map, mapSize);
-        populateNearCache(map, mapSize);
+        populateMapWithExpirableEntries(map, mapSize, 3, TimeUnit.SECONDS);
+        pullEntriesToNearCache(map, mapSize);
 
         waitUntilEvictionEventsReceived(latch);
         assertNearCacheSize(mapSize, mapName, map);
@@ -534,15 +626,21 @@ public class NearCacheTest extends HazelcastTestSupport {
         });
     }
 
-    private void populateNearCache(IMap<Integer, Integer> map, int mapSize) {
+    private void pullEntriesToNearCache(IMap<Integer, Integer> map, int mapSize) {
         for (int i = 0; i < mapSize; i++) {
             map.get(i);
         }
     }
 
-    private void populateMapWithExpirableEnties(IMap<Integer, Integer> map, int mapSize) {
+    private void populateMapWithExpirableEntries(IMap<Integer, Integer> map, int mapSize, long ttl, TimeUnit timeunit) {
         for (int i = 0; i < mapSize; i++) {
-            map.put(i, i, 3, TimeUnit.SECONDS);
+            map.put(i, i, ttl, timeunit);
+        }
+    }
+
+    private void populateMap(IMap<Integer, Integer> map, int mapSize) {
+        for (int i = 0; i < mapSize; i++) {
+            map.put(i, i);
         }
     }
 

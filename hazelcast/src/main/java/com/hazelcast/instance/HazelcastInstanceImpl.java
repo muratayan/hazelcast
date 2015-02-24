@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,14 +98,11 @@ public class HazelcastInstanceImpl implements HazelcastInstance {
 
     final ManagedContext managedContext;
 
-    final ThreadGroup threadGroup;
-
     final ConcurrentMap<String, Object> userContext = new ConcurrentHashMap<String, Object>();
 
     HazelcastInstanceImpl(String name, Config config, NodeContext nodeContext)
             throws Exception {
         this.name = name;
-        this.threadGroup = new ThreadGroup(name);
         lifecycleService = new LifecycleServiceImpl(this);
         ManagedContext configuredManagedContext = config.getManagedContext();
         managedContext = new HazelcastManagedContext(this, configuredManagedContext);
@@ -413,10 +410,6 @@ public class HazelcastInstanceImpl implements HazelcastInstance {
     public boolean removeDistributedObjectListener(String registrationId) {
         final ProxyService proxyService = node.nodeEngine.getProxyService();
         return proxyService.removeProxyListener(registrationId);
-    }
-
-    public ThreadGroup getThreadGroup() {
-        return threadGroup;
     }
 
     public SerializationService getSerializationService() {

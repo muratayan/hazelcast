@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,14 +148,6 @@ public class MapContainer extends MapContainerSupport {
 
     public MapMergePolicy getWanMergePolicy() {
         return wanMergePolicy;
-    }
-
-    public String addInterceptor(MapInterceptor interceptor) {
-        String id = interceptor.getClass().getName() + interceptor.hashCode();
-
-        addInterceptor(id, interceptor);
-
-        return id;
     }
 
     public void addInterceptor(String id, MapInterceptor interceptor) {

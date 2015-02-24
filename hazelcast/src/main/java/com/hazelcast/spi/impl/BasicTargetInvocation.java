@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ public final class BasicTargetInvocation extends BasicInvocation {
 
     public BasicTargetInvocation(NodeEngineImpl nodeEngine, String serviceName, Operation op,
                                  Address target, int tryCount, long tryPauseMillis, long callTimeout,
-                                 Callback<Object> callback, String executorName, boolean resultDeserialized) {
+                                 Callback<Object> callback, boolean resultDeserialized) {
         super(nodeEngine, serviceName, op, op.getPartitionId(), op.getReplicaIndex(),
-                tryCount, tryPauseMillis, callTimeout, callback, executorName, resultDeserialized);
+                tryCount, tryPauseMillis, callTimeout, callback, resultDeserialized);
         this.target = target;
     }
 

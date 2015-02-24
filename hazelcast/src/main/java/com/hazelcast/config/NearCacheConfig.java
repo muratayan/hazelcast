@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,7 +222,6 @@ public class NearCacheConfig implements DataSerializable , Serializable {
         name = in.readUTF();
         evictionPolicy = in.readUTF();
         timeToLiveSeconds = in.readInt();
-        maxSize = in.readInt();
         maxSize = in.readInt();
         invalidateOnChange = in.readBoolean();
         cacheLocalEntries = in.readBoolean();

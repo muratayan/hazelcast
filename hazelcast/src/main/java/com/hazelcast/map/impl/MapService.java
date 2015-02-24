@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.hazelcast.map.impl;
 
 import com.hazelcast.core.DistributedObject;
+import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.spi.EventPublishingService;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.MigrationAwareService;
@@ -28,11 +29,13 @@ import com.hazelcast.spi.PostJoinAwareService;
 import com.hazelcast.spi.RemoteService;
 import com.hazelcast.spi.ReplicationSupportingService;
 import com.hazelcast.spi.SplitBrainHandlerService;
+import com.hazelcast.spi.StatisticsAwareService;
 import com.hazelcast.spi.TransactionalService;
 import com.hazelcast.transaction.TransactionalObject;
 import com.hazelcast.transaction.impl.TransactionSupport;
 import com.hazelcast.wan.WanReplicationEvent;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -47,9 +50,9 @@ import java.util.Properties;
  * @see MapSplitBrainHandlerService
  * @see MapReplicationSupportingService
  */
-public final class MapService implements ManagedService, MigrationAwareService,
+public class MapService implements ManagedService, MigrationAwareService,
         TransactionalService, RemoteService, EventPublishingService<EventData, ListenerAdapter>,
-        PostJoinAwareService, SplitBrainHandlerService, ReplicationSupportingService {
+        PostJoinAwareService, SplitBrainHandlerService, ReplicationSupportingService, StatisticsAwareService {
 
     /**
      * Service name of map service used
@@ -65,9 +68,10 @@ public final class MapService implements ManagedService, MigrationAwareService,
     private PostJoinAwareService postJoinAwareService;
     private SplitBrainHandlerService splitBrainHandlerService;
     private ReplicationSupportingService replicationSupportingService;
+    private StatisticsAwareService statisticsAwareService;
     private MapServiceContext mapServiceContext;
 
-    private MapService() {
+    public MapService() {
     }
 
     @Override
@@ -150,46 +154,17 @@ public final class MapService implements ManagedService, MigrationAwareService,
         transactionalService.rollbackTransaction(transactionId);
     }
 
+    @Override
+    public Map<String, LocalMapStats> getStats() {
+        return statisticsAwareService.getStats();
+    }
+
     public void setMapServiceContext(MapServiceContext mapServiceContext) {
         this.mapServiceContext = mapServiceContext;
     }
 
     public MapServiceContext getMapServiceContext() {
         return mapServiceContext;
-    }
-
-    /**
-     * Static factory method which creates a new map service object.
-     *
-     * @param nodeEngine node engine.
-     * @return new map service object.
-     */
-    public static MapService create(NodeEngine nodeEngine) {
-        final MapServiceContext mapServiceContext = new DefaultMapServiceContext(nodeEngine);
-        final ManagedService managedService = new MapManagedService(mapServiceContext);
-        final MigrationAwareService migrationAwareService = new MapMigrationAwareService(mapServiceContext);
-        final TransactionalService transactionalService = new MapTransactionalService(mapServiceContext);
-        final RemoteService remoteService = new MapRemoteService(mapServiceContext);
-        final EventPublishingService eventPublisher = new MapEventPublishingService(mapServiceContext);
-        final PostJoinAwareService postJoinAwareService = new MapPostJoinAwareService(mapServiceContext);
-        final SplitBrainHandlerService splitBrainHandler = new MapSplitBrainHandlerService(mapServiceContext);
-        final ReplicationSupportingService replicationSupportingService
-                = new MapReplicationSupportingService(mapServiceContext);
-
-        final MapService mapService = new MapService();
-        mapService.setManagedService(managedService);
-        mapService.setMigrationAwareService(migrationAwareService);
-        mapService.setTransactionalService(transactionalService);
-        mapService.setRemoteService(remoteService);
-        mapService.setEventPublishingService(eventPublisher);
-        mapService.setPostJoinAwareService(postJoinAwareService);
-        mapService.setSplitBrainHandlerService(splitBrainHandler);
-        mapService.setReplicationSupportingService(replicationSupportingService);
-        mapService.setMapServiceContext(mapServiceContext);
-
-        mapServiceContext.setService(mapService);
-
-        return mapService;
     }
 
     void setManagedService(ManagedService managedService) {
@@ -224,4 +199,7 @@ public final class MapService implements ManagedService, MigrationAwareService,
         this.replicationSupportingService = replicationSupportingService;
     }
 
+    void setStatisticsAwareService(StatisticsAwareService statisticsAwareService) {
+        this.statisticsAwareService = statisticsAwareService;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,15 +114,11 @@ public abstract class CollectionContainer implements DataSerializable {
     }
 
     protected boolean contains(Set<Data> valueSet) {
+        Collection<CollectionItem> collection = getCollection();
+        CollectionItem collectionItem = new CollectionItem(-1, null);
         for (Data value : valueSet) {
-            boolean contains = false;
-            for (CollectionItem item : getCollection()) {
-                if (value.equals(item.getValue())) {
-                    contains = true;
-                    break;
-                }
-            }
-            if (!contains) {
+            collectionItem.setValue(value);
+            if (!collection.contains(collectionItem)) {
                 return false;
             }
         }

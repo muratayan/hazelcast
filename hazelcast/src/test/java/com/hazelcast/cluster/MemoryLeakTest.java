@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,26 @@
 
 package com.hazelcast.cluster;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.TestUtil;
 import com.hazelcast.test.HazelcastSerialClassRunner;
+import com.hazelcast.test.HazelcastTestSupport;
 import com.hazelcast.test.annotation.NightlyTest;
+import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.fail;
 
 @RunWith(HazelcastSerialClassRunner.class)
 @Category(NightlyTest.class)
-public class MemoryLeakTest {
+public class MemoryLeakTest extends HazelcastTestSupport {
 
     @BeforeClass
     @AfterClass
@@ -45,8 +46,10 @@ public class MemoryLeakTest {
     @Test
     public void testShutdownAllMemoryLeak() throws Exception {
         final long usedMemoryInit = getUsedMemoryAsMB();
+        Config config = new Config();
+        config.getGroupConfig().setName(generateRandomString(10));
         for (int i = 0; i < 7; i++) {
-            Hazelcast.newHazelcastInstance();
+            Hazelcast.newHazelcastInstance(config);
         }
         TestUtil.warmUpPartitions(Hazelcast.getAllHazelcastInstances().toArray(new HazelcastInstance[0]));
         Hazelcast.shutdownAll();

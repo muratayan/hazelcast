@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,16 @@ public class CallTimeoutResponse extends Response implements IdentifiedDataSeria
     @Override
     public int getId() {
         return SpiDataSerializerHook.CALL_TIMEOUT_RESPONSE;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("CallTimeoutResponse");
+        sb.append("{callId=").append(callId);
+        sb.append(", urgent=").append(urgent);
+        sb.append('}');
+        return sb.toString();
     }
 }
 

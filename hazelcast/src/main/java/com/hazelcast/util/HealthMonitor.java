@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,8 @@ public class HealthMonitor extends Thread {
     private final ThreadMXBean threadMxBean;
 
     public HealthMonitor(HazelcastInstanceImpl hazelcastInstance, HealthMonitorLevel logLevel, int delaySeconds) {
-        super(hazelcastInstance.node.threadGroup, hazelcastInstance.node.getThreadNamePrefix("HealthMonitor"));
+        super(hazelcastInstance.node.getHazelcastThreadGroup().getInternalThreadGroup(),
+                hazelcastInstance.node.getHazelcastThreadGroup().getThreadNamePrefix("HealthMonitor"));
         setDaemon(true);
 
         this.node = hazelcastInstance.node;
@@ -183,7 +184,7 @@ public class HealthMonitor extends Thread {
             systemCpuLoad = readLongAttribute("SystemCpuLoad", -1L);
             threadCount = threadMxBean.getThreadCount();
             peakThreadCount = threadMxBean.getPeakThreadCount();
-            clusterTimeDiff = clusterService.getClusterTimeDiff();
+            clusterTimeDiff = clusterService.getClusterClock().getClusterTimeDiff();
             asyncExecutorQueueSize = executionService.getExecutor(ExecutionService.ASYNC_EXECUTOR).getQueueSize();
             clientExecutorQueueSize = executionService.getExecutor(ExecutionService.CLIENT_EXECUTOR).getQueueSize();
             queryExecutorQueueSize = executionService.getExecutor(ExecutionService.QUERY_EXECUTOR).getQueueSize();

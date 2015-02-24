@@ -6,11 +6,11 @@ src/WhatsNew.md
 	src/UpgradingFrom2x.md
 	src/DocumentRevisionHistory.md
 src/GettingStarted.md
-	src/WhyHazelcast.md
-	src/Installation.md
 		src/InstallingHZEnterprise.md
-	src/StartingClusterClient.md
+	src/StartingInstanceClient.md
 	src/ConfiguringHazelcast.md
+src/Overview.md
+	src/WhyHazelcast.md
 	src/DataPartitioning.md
 	src/UseCases.md
 	src/Resources.md
@@ -53,7 +53,7 @@ src/Distributed_Data_Structures.md
         src/replicatedmap/Considerations.md
         src/replicatedmap/BreakageMapContract.md
         src/replicatedmap/TechnicalDesign.md
-        src/replicatedmap/InMemoryFormat.md
+        src/replicatedmap/Configuration.md
         src/replicatedmap/EntryListener.md
 src/DistributedEvents.md
 	src/GlobalEventConfiguration.md
@@ -149,7 +149,8 @@ src/Management.md
 	src/MonitoringWithJMX.md
 	src/ClusterUtilities.md
 		src/MemberAttributes.md
-		src/PartitionService.md
+		src/ClusterMemberSafetyCheck.md
+		src/ClusterQuorum.md
 	src/ManagementCenter.md
 	src/ClusteredJMX.md
 	src/ClusteredREST.md
@@ -173,6 +174,10 @@ src/Performance.md
 		src/ThreadingOperation.md
 	src/BackPressure.md
 	src/HazelcastPerformanceOnAWS.md
+src/HazelcastStabilizer/StabilizerOverview.md
+	src/HazelcastStabilizer/InstallingStabilizer.md
+	src/HazelcastStabilizer/SettingUpForEC2.md
+	src/HazelcastStabilizer/SettingUpForGCE.md
 src/WAN.md
 #	src/TopologyAwarePartitionManagement.md
 #src/Config.md

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2014, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public interface ICacheService extends ManagedService, RemoteService, MigrationA
 
     void destroyCache(String objectName, boolean isLocal, String callerUuid);
 
-    CacheConfig createCacheConfigIfAbsent(CacheConfig config, boolean isLocal);
+    CacheConfig createCacheConfigIfAbsent(CacheConfig config);
 
     CacheConfig deleteCacheConfig(String name);
 

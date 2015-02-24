@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.hazelcast.spi.impl;
 
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
+import com.hazelcast.instance.HazelcastThreadGroup;
 import com.hazelcast.instance.MemberImpl;
 import com.hazelcast.instance.Node;
 import com.hazelcast.logging.ILogger;
@@ -77,9 +78,11 @@ class WaitNotifyServiceImpl implements WaitNotifyService {
         final Node node = nodeEngine.getNode();
         logger = node.getLogger(WaitNotifyService.class.getName());
 
-        String threadNamePrefix = node.getThreadNamePrefix("wait-notify");
+        HazelcastThreadGroup threadGroup = node.getHazelcastThreadGroup();
         expirationService = Executors.newSingleThreadExecutor(
-                new SingleExecutorThreadFactory(node.threadGroup, node.getConfigClassLoader(), threadNamePrefix));
+                new SingleExecutorThreadFactory(threadGroup.getInternalThreadGroup(),
+                        threadGroup.getClassLoader(),
+                        threadGroup.getThreadNamePrefix("wait-notify")));
 
         expirationTask = expirationService.submit(new ExpirationTask());
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ import java.util.Map;
  */
 public class EC2RequestSigner {
     private static final String API_TERMINATOR = "aws4_request";
-
+    private static final int LAST_INDEX = 8;
     private final AwsConfig config;
-    private String service;
     private final String timestamp;
+    private String service;
     private String signature;
     private Map<String, String> attributes;
     private String canonicalRequest;
@@ -216,7 +216,6 @@ public class EC2RequestSigner {
     }
 
 
-
     private String sha256Hashhex(final String in) {
         String payloadHash = "";
         try {
@@ -230,5 +229,10 @@ public class EC2RequestSigner {
             return null;
         }
         return payloadHash;
+    }
+
+    public String createFormattedCredential() {
+        return config.getAccessKey() + "/" + timestamp.substring(0, LAST_INDEX) + "/"
+                + config.getRegion() + "/" + "ec2/aws4_request";
     }
 }
