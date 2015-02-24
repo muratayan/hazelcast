@@ -36,6 +36,7 @@ import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.HazelcastTestSupport;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.hazelcast.test.annotation.QuickTest;
+import com.hazelcast.test.annotation.Repeat;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,6 +54,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+@Repeat(100)
 @RunWith(HazelcastParallelClassRunner.class)
 @Category(QuickTest.class)
 public class NearCacheTest extends HazelcastTestSupport {
@@ -536,6 +538,7 @@ public class NearCacheTest extends HazelcastTestSupport {
         });
     }
 
+    //@Repeat(100)
     @Test
     public void testNearCacheInvalidation_WithRandom_whenMaxSizeExceeded() throws Exception {
         int mapSize = 2000;
