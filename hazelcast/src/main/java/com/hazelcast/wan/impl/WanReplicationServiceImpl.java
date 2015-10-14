@@ -22,6 +22,7 @@ import com.hazelcast.config.WanTargetClusterConfig;
 import com.hazelcast.instance.HazelcastThreadGroup;
 import com.hazelcast.instance.Node;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.monitor.LocalInstanceStats;
 import com.hazelcast.nio.ClassLoaderUtil;
 import com.hazelcast.nio.Packet;
 import com.hazelcast.spi.ReplicationSupportingService;
@@ -162,5 +163,10 @@ public class WanReplicationServiceImpl implements WanReplicationService {
 
     private ConcurrentHashMap<String, WanReplicationPublisherDelegate> initializeWanReplicationPublisherMapping() {
         return new ConcurrentHashMap<String, WanReplicationPublisherDelegate>(2);
+    }
+
+    @Override
+    public <T extends LocalInstanceStats> Map<String, T> getStats() {
+        return null;
     }
 }
