@@ -22,7 +22,7 @@ import com.hazelcast.config.WanTargetClusterConfig;
 import com.hazelcast.instance.HazelcastThreadGroup;
 import com.hazelcast.instance.Node;
 import com.hazelcast.logging.ILogger;
-import com.hazelcast.monitor.LocalInstanceStats;
+import com.hazelcast.monitor.LocalWanStats;
 import com.hazelcast.nio.ClassLoaderUtil;
 import com.hazelcast.nio.Packet;
 import com.hazelcast.spi.ReplicationSupportingService;
@@ -176,7 +176,7 @@ public class WanReplicationServiceImpl implements WanReplicationService {
     }
 
     @Override
-    public <T extends LocalInstanceStats> Map<String, T> getStats() {
+    public Map<String, LocalWanStats> getStats() {
         return null;
     }
 }

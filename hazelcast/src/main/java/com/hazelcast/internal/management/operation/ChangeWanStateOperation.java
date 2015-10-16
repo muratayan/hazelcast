@@ -16,59 +16,40 @@
 
 package com.hazelcast.internal.management.operation;
 
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.spi.Operation;
-
-import java.io.IOException;
+import com.hazelcast.spi.AbstractOperation;
+import com.hazelcast.spi.NodeEngine;
+import com.hazelcast.wan.WanReplicationService;
 
 /**
  * Enables/Disable publishing events to target cluster in WAN Replication {@link com.hazelcast.wan.WanReplicationService}
  * on a node. This operation does not block adding new events to event queue.
  */
-public class ChangeWanStateOperation extends Operation {
+public class ChangeWanStateOperation extends AbstractOperation {
 
+    private String memberAddress;
+    private String schemeName;
+    private String publisherName;
     private boolean start;
 
     public ChangeWanStateOperation() {
     }
 
-    public ChangeWanStateOperation(boolean start) {
+    public ChangeWanStateOperation(String memberAddress, String schemeName, String publisherName, boolean start) {
+        this.memberAddress = memberAddress;
+        this.schemeName = schemeName;
+        this.publisherName = publisherName;
         this.start = start;
     }
 
     @Override
-    public void beforeRun() throws Exception {
-
-    }
-
-    @Override
     public void run() throws Exception {
-        /*TODO*/
-    }
+        NodeEngine nodeEngine = getNodeEngine();
+        WanReplicationService wanReplicationService = nodeEngine.getWanReplicationService();
 
-    @Override
-    public void afterRun() throws Exception {
-
-    }
-
-    @Override
-    public boolean returnsResponse() {
-        return true;
-    }
-
-    @Override
-    public Object getResponse() {
-        return null;
-    }
-
-    @Override
-    protected void writeInternal(ObjectDataOutput out) throws IOException {
-
-    }
-
-    @Override
-    protected void readInternal(ObjectDataInput in) throws IOException {
-
+        if (start) {
+            wanReplicationService.resume(schemeName, publisherName);
+        } else {
+            wanReplicationService.pause(schemeName, publisherName);
+        }
     }
 }

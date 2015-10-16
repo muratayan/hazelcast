@@ -62,7 +62,8 @@ public class ChangeWanStateRequest implements ConsoleRequest {
     public void writeResponse(ManagementCenterService mcs, JsonObject out) throws Exception {
         final JsonObject result = new JsonObject();
         result.add("start", start);
-        ChangeWanStateOperation changeWanStateOperation = new ChangeWanStateOperation(start);
+        ChangeWanStateOperation changeWanStateOperation =
+                new ChangeWanStateOperation(memberAddress, schemeName, publisherName, start);
 
         String[] hostAndPort = memberAddress.split(":");
         Address address = new Address(hostAndPort[0], Integer.valueOf(hostAndPort[1]));

@@ -186,7 +186,7 @@ public class TimedMemberStateFactory {
         }
 
         WanReplicationService wanReplicationService = instance.node.nodeEngine.getWanReplicationService();
-        Map<String, LocalInstanceStats> wanStats = wanReplicationService.getStats();
+        Map<String, LocalWanStats> wanStats = wanReplicationService.getStats();
         if (wanStats != null) {
             count = handleWan(memberState, count, wanStats, longInstanceNames);
         }
@@ -301,11 +301,11 @@ public class TimedMemberStateFactory {
         return count;
     }
 
-    private int handleWan(MemberStateImpl memberState, int count, Map<String, LocalInstanceStats> wans,
+    private int handleWan(MemberStateImpl memberState, int count, Map<String, LocalWanStats> wans,
                           Set<String> longInstanceNames) {
-        for (Map.Entry<String, LocalInstanceStats> entry : wans.entrySet()) {
+        for (Map.Entry<String, LocalWanStats> entry : wans.entrySet()) {
             String schemeName = entry.getKey();
-            LocalWanStats stats = (LocalWanStats) entry.getValue();
+            LocalWanStats stats = entry.getValue();
             memberState.putLocalWanStats(schemeName, stats);
             longInstanceNames.add("w:" + schemeName);
             count++;
